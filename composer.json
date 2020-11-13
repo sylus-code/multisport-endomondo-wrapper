@@ -1,0 +1,10 @@
+{
+  "name": "sylus-code/multisport-endomondo-wrapper",
+  "description": "endomondo api wrapper",
+  "type": "library",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "SylusCode\\MultiSport\\EndomondoWrapper\\": "src/"
+    }
+  }
