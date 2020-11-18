@@ -3,24 +3,24 @@
 namespace SylusCode\MultiSport\EndomondoWrapper;
 
 use SylusCode\MultiSport\Workout\Point;
-use SylusCode\MultiSport\Workout\Type;
 use SylusCode\MultiSport\Workout\Workout;
-use SylusCode\MultiSport\EndomondoWrapper\WorkoutTypeResolver;
 
 class WorkoutParser
 {
+    private $endoTypeResolver;
+
+    public function __construct(WorkoutTypeResolver $endoTypeResolver)
+    {
+        $this->endoTypeResolver = $endoTypeResolver;
+    }
 
     public function parseFromJson($json): Workout
     {
-        // possible to add HeartRate to workout
-        $workout = new Workout();
-        $endoTyperesolver = new WorkoutTypeResolver();
-
         $jsonFlatten = $this->array_flatten($json);
 
-        $workout->setType($endoTyperesolver->resolve($jsonFlatten['sport']));
-        $startTime = substr($jsonFlatten['start_time'], 0, -2);
-        $workout->setStart(\DateTime::createFromFormat('Y-m-d H:m:s', $startTime));
+        $workout = new Workout();
+        $workout->setType($this->endoTypeResolver->resolve($jsonFlatten['sport']));
+        $workout->setStart($this->formatStartTime($jsonFlatten['start_time']));
         $workout->setDistance($jsonFlatten['distance_km']);
         $workout->setDurationTotal($jsonFlatten['duration_s']);
         $workout->setCalories($jsonFlatten['calories_kcal']);
@@ -33,7 +33,6 @@ class WorkoutParser
             $points[] = $point;
         }
         $workout->setPoints($points);
-
 
         return $workout;
     }
@@ -54,6 +53,7 @@ class WorkoutParser
                 $return[$key] = $value;
             }
         }
+
         return $return;
     }
 
@@ -76,6 +76,12 @@ class WorkoutParser
         if (isset($trackPoint['altitude'])) {
             $point->setAltitude($trackPoint['altitude']);
         }
+
         return $point;
+    }
+    private function formatStartTime(string $time): \DateTime
+    {
+        $startTime = substr($time, 0, -2);
+        return \DateTime::createFromFormat('Y-m-d H:m:s', $startTime);
     }
 }
