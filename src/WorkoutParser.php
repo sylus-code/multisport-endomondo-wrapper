@@ -14,30 +14,62 @@ class WorkoutParser
         $this->endoTypeResolver = $endoTypeResolver;
     }
 
-    public function parseFromJson($json): Workout
+    public function parseFromJson(string $json): Workout
     {
+        $json = json_decode($json, true);
         $jsonFlatten = $this->array_flatten($json);
-
         $workout = new Workout();
-        $workout->setType($this->endoTypeResolver->resolve($jsonFlatten['sport']));
-        $workout->setStart($this->formatStartTime($jsonFlatten['start_time']));
-        $workout->setDistance($jsonFlatten['distance_km']);
-        $workout->setDurationTotal($jsonFlatten['duration_s']);
-        $workout->setCalories($jsonFlatten['calories_kcal']);
-        $workout->setAvgSpeed($jsonFlatten['speed_avg_kmh']);
 
-        $points = [];
-        foreach ($jsonFlatten['points'] as $trackPoint) {
-
-            $point = $this->createPoint($trackPoint);
-            $points[] = $point;
+        if (isset($jsonFlatten['sport'])) {
+            $workout->setType($this->endoTypeResolver->resolve($jsonFlatten['sport']));
         }
-        $workout->setPoints($points);
+        if (isset($jsonFlatten['start_time'])) {
+            $workout->setStart($this->resolveTimestamp($jsonFlatten['start_time']));
+        }
+        if (isset($jsonFlatten['distance_km'])) {
+            $workout->setDistance($jsonFlatten['distance_km']);
+        }
+        if (isset($jsonFlatten['duration_s'])) {
+            $workout->setDurationTotal($jsonFlatten['duration_s']);
+        }
+        if (isset($jsonFlatten['calories_kcal'])) {
+            $workout->setCalories($jsonFlatten['calories_kcal']);
+        }
+        if (isset($jsonFlatten['speed_avg_kmh'])) {
+            $workout->setAvgSpeed($jsonFlatten['speed_avg_kmh']);
+        }
+        if (isset($jsonFlatten['heart_rate_avg_bpm'])) {
+            $workout->setAvgHeartRate($jsonFlatten['heart_rate_avg_bpm']);
+        }
+        if (isset($jsonFlatten['heart_rate_max_bpm'])) {
+            $workout->setMaxHeartRate($jsonFlatten['heart_rate_max_bpm']);
+        }
+        if (isset($jsonFlatten['speed_max_kmh'])) {
+            $workout->setMaxSpeed($jsonFlatten['speed_max_kmh']);
+        }
+        if (isset($jsonFlatten['steps'])) {
+            $workout->setSteps($jsonFlatten['steps']);
+        }
+        if (isset($jsonFlatten['notes'])) {
+            $workout->setMessage($jsonFlatten['notes']);
+        }
+        if (isset($jsonFlatten['message'])) {
+            $workout->setMessage($jsonFlatten['message']);
+        }
+        if (isset($jsonFlatten['points'])) {
+            $points = [];
+            foreach ($jsonFlatten['points'] as $trackPoint) {
+
+                $point = $this->createPoint($trackPoint);
+                $points[] = $point;
+            }
+            $workout->setPoints($points);
+        }
 
         return $workout;
     }
 
-    private function array_flatten($json): array
+    private function array_flatten(array $json): array
     {
         $return = array();
         foreach ($json as $key => $value) {
@@ -57,9 +89,20 @@ class WorkoutParser
         return $return;
     }
 
+    private function resolveTimestamp(string $timestamp)
+    {
+        $datetime = \DateTime::createFromFormat('D M d H:i:s T Y', $timestamp);
+
+        if ($datetime == false) {
+            $datetime = substr($timestamp, 0, -2);
+            $datetime = \DateTime::createFromFormat('Y-m-d H:i:s', $datetime);
+        }
+
+        return $datetime;
+    }
+
     private function createPoint($trackPoint): Point
     {
-        // possible to add HeartRate condition
         $point = new Point();
         if (isset($trackPoint['latitude'])) {
             $point->setLatitude($trackPoint['latitude']);
@@ -68,7 +111,7 @@ class WorkoutParser
             $point->setLongtitude($trackPoint['longitude']);
         }
         if (isset($trackPoint['timestamp'])) {
-            $point->setTime(\DateTime::createFromFormat('D M d H:m:s T Y', $trackPoint['timestamp']));
+            $point->setTime($this->resolveTimestamp($trackPoint['timestamp']));
         }
         if (isset($trackPoint['distance_km'])) {
             $point->setDistance($trackPoint['distance_km']);
@@ -76,12 +119,10 @@ class WorkoutParser
         if (isset($trackPoint['altitude'])) {
             $point->setAltitude($trackPoint['altitude']);
         }
+        if (isset($trackPoint['heart_rate_bpm'])) {
+            $point->setHeartRate($trackPoint['heart_rate_bpm']);
+        }
 
         return $point;
-    }
-    private function formatStartTime(string $time): \DateTime
-    {
-        $startTime = substr($time, 0, -2);
-        return \DateTime::createFromFormat('Y-m-d H:m:s', $startTime);
     }
 }
