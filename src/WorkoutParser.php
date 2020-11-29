@@ -9,7 +9,7 @@ class WorkoutParser
 {
     private $endoTypeResolver;
 
-    public function __construct(WorkoutTypeResolver $endoTypeResolver)
+    public function __construct(WorkoutTypeResolverInterface $endoTypeResolver)
     {
         $this->endoTypeResolver = $endoTypeResolver;
     }
