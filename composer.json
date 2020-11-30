@@ -7,5 +7,8 @@
     "psr-4": {
       "SylusCode\\MultiSport\\EndomondoWrapper\\": "src/"
     }
+  },
+  "require": {
+    "sylus-code/multisport-workout": "^1.0"
   }
 }
