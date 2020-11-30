@@ -8,16 +8,6 @@ class WorkoutTypeResolver implements WorkoutTypeResolverInterface
 {
     public function resolve(string $endomondoWorkoutTypeName): Type
     {
-        // add other activitiy types when archive arrived
-
-        //weź wartość z pola $jsonFlatten['sport'] = $typeId
-        switch ($endomondoWorkoutTypeName) {
-            case 'RUNNING':
-                $typeId = Type::TYPE_RUNNING;
-                break;
-            default:
-                $typeId = Type::TYPE_OTHER;
-        }
-        return Type::createFromTypeId($typeId);
+        return  new Type($endomondoWorkoutTypeName);
     }
 }
