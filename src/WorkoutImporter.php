@@ -2,7 +2,6 @@
 
 namespace SylusCode\MultiSport\EndomondoWrapper;
 
-use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
@@ -41,13 +40,6 @@ class WorkoutImporter implements WorkoutImporterInterface
         }
 
         $filesystem = new Filesystem();
-
-        try {
-            $filesystem->mkdir(sys_get_temp_dir() . '/' . random_int(0, 1000));
-        } catch (IOExceptionInterface $exception) {
-            echo "An error occurred while creating your directory at " . $exception->getPath();
-        }
-
         $filesystem->remove([$temporaryExtractPath . '/TempData']);
 
         return $workouts;
