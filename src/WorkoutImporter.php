@@ -16,7 +16,7 @@ class WorkoutImporter implements WorkoutImporterInterface
         $this->workoutParser = $workoutParser;
     }
 
-    public function importFromZipFile(string $filePath, string $temporaryExtractPath = null): array
+    public function importFromZipFile(string $filePath, string $temporaryExtractPath = null): iterable
     {
         $path = dirname($filePath);
 
@@ -25,18 +25,13 @@ class WorkoutImporter implements WorkoutImporterInterface
 
         $this->finder->in($temporaryExtractPath . '/TempData/Workouts')->name('*.json');
 
-        $workouts = [];
-
         foreach ($this->finder as $file) {
             $string = $file->getContents();
-            $workout = $this->workoutParser->parseFromJson($string);
-            array_push($workouts, $workout);
+            yield $this->workoutParser->parseFromJson($string);
         }
 
         $filesystem = new Filesystem();
         $filesystem->remove([$temporaryExtractPath . '/TempData']);
-
-        return $workouts;
     }
 
     private function extractFiles(string $filePath, string $temporaryExtractPath): void
