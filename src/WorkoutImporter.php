@@ -26,17 +26,11 @@ class WorkoutImporter implements WorkoutImporterInterface
         $this->finder->in($temporaryExtractPath . '/TempData/Workouts')->name('*.json');
 
         $workouts = [];
-        $ileTo = 0;
 
         foreach ($this->finder as $file) {
             $string = $file->getContents();
             $workout = $this->workoutParser->parseFromJson($string);
             array_push($workouts, $workout);
-
-            if ($ileTo == 5) {
-                break;
-            }
-            $ileTo++;
         }
 
         $filesystem = new Filesystem();
