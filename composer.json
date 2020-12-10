@@ -10,8 +10,8 @@
   },
   "require": {
     "sylus-code/multisport-workout": "^1.0",
-    "symfony/finder": "^5.2",
-    "symfony/filesystem": "^5.2",
+    "symfony/finder": "^5.1",
+    "symfony/filesystem": "^5.1",
     "ext-zip": "*",
     "ext-json": "*"
   }
